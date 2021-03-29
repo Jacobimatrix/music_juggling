@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "fontsource-roboto": "^3.0.3",
+    "jzz": "^1.2.6",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-router-dom": "^5.2.0"
