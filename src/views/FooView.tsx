@@ -3,7 +3,6 @@ import { RouteComponentProps } from "react-router";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/src/styles.scss";
 import fs from "fs";
-import dataurl from "dataurl";
 
 interface State {
   text: string;
