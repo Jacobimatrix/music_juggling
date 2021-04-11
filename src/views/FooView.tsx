@@ -61,7 +61,7 @@ export default class FooView extends React.Component<
   public render() {
     return (
       <div>
-        <h3>FOO View</h3>
+        <h3>Audio Player</h3>
         <AudioPlayer
           src="file:///C:/Users/Jakob Schubert/code/music_juggling/music_juggling/src/resources/audio/test_audio.mp3"
           onPlay={(e) => console.log("onPlay")}
