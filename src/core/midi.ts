@@ -1,3 +1,20 @@
+export default function sendSignalToUsbDevice(
+  remoteControlButton: string
+): void {
+  const signal = getIntToSend(remoteControlButton);
+  let navigator = require("jzz");
+  navigator.requestMIDIAccess().then(function (midi) {
+    let elements = Array.from(midi.outputs.values());
+    elements.map((e) => {
+      if (e.name.includes("K8")) {
+        e.send([144, signal, 100]);
+      }
+      console.log(e);
+    });
+  });
+  navigator.close();
+}
+
 function getIntToSend(remoteControlButton: string): number {
   switch (remoteControlButton) {
     case "g":

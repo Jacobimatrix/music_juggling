@@ -35,19 +35,6 @@ export default class BarView extends React.Component<
 
   onGotoFooClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     console.log("Navigating to Foo view");
-    let navigator = require("jzz");
-    navigator.requestMIDIAccess().then(function (midi) {
-      let elements = Array.from(midi.outputs.values());
-      elements.map((e) => {
-        if (e.name.includes("K8")) {
-          console.log(e);
-          e.send([144, 57, 100]);
-        }
-        console.log(e);
-      });
-    });
-    // ...
-    navigator.close();
   };
 
   public render() {

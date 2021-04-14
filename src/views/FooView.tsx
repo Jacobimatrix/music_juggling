@@ -13,14 +13,21 @@ export default class FooView extends React.Component<
   State
 > {
   fileRef: React.RefObject<HTMLInputElement>;
+  interval: NodeJS.Timeout;
 
   constructor(props: RouteComponentProps) {
     super(props);
     this.state = {
       text: "Open a file to display content here",
     };
-
     this.fileRef = React.createRef<HTMLInputElement>();
+    this.interval = setInterval(() => {
+      console.log(" run every second!");
+    }, 100);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   onGotoBarClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -62,10 +69,7 @@ export default class FooView extends React.Component<
     return (
       <div>
         <h3>Audio Player</h3>
-        <AudioPlayer
-          src="file:///C:/Users/Jakob Schubert/code/music_juggling/music_juggling/src/resources/audio/test_audio.mp3"
-          onPlay={(e) => console.log("onPlay")}
-        />
+        <AudioPlayer src="file:///C:/Users/Jakob Schubert/code/music_juggling/music_juggling/src/resources/audio/test_audio.mp3" />
         <p>{this.state.text}</p>
 
         <button onClick={this.onOpenFileClick}>Open file...</button>
