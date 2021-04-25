@@ -3,6 +3,7 @@ import { RouteComponentProps } from "react-router";
 import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/src/styles.scss";
 import fs from "fs";
+import { RefObject } from "react";
 
 interface State {
   text: string;
@@ -14,6 +15,7 @@ export default class FooView extends React.Component<
 > {
   fileRef: React.RefObject<HTMLInputElement>;
   interval: NodeJS.Timeout;
+  _audioPlayer: RefObject<AudioPlayer>;
 
   constructor(props: RouteComponentProps) {
     super(props);
@@ -22,8 +24,9 @@ export default class FooView extends React.Component<
     };
     this.fileRef = React.createRef<HTMLInputElement>();
     this.interval = setInterval(() => {
-      console.log(" run every second!");
-    }, 100);
+      console.log(this._audioPlayer.current?.audio.current?.currentTime);
+    }, 50);
+    this._audioPlayer = React.createRef<AudioPlayer>();
   }
 
   componentWillUnmount() {
@@ -69,7 +72,10 @@ export default class FooView extends React.Component<
     return (
       <div>
         <h3>Audio Player</h3>
-        <AudioPlayer src="file:///C:/Users/Jakob Schubert/code/music_juggling/music_juggling/src/resources/audio/test_audio.mp3" />
+        <AudioPlayer
+          src="file:///C:/Users/Jakob Schubert/code/music_juggling/music_juggling/src/resources/audio/test_audio.mp3"
+          ref={this._audioPlayer}
+        />
         <p>{this.state.text}</p>
 
         <button onClick={this.onOpenFileClick}>Open file...</button>
