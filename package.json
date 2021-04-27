@@ -27,6 +27,7 @@
     "pack": "npx rimraf ./pack && npm run build-prod && npx electron-packager ./dist --out ./pack --overwrite"
   },
   "dependencies": {
+    "binary-search-tree": "^0.2.6",
     "fontsource-roboto": "^3.0.3",
     "jzz": "^1.2.6",
     "react": "^16.14.0",

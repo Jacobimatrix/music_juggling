@@ -9,7 +9,7 @@ export default function sendSignalToUsbDevice(
       if (e.name.includes("K8")) {
         e.send([144, signal, 100]);
       }
-      console.log(e);
+      console.log(`Sending signal ${remoteControlButton}`);
     });
   });
   navigator.close();

@@ -4,6 +4,9 @@ import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/src/styles.scss";
 import fs from "fs";
 import { RefObject } from "react";
+import BinarySearchTree from "binary-search-tree";
+import sendSignalToUsbDevice from "../core/midi";
+import { sign } from "crypto";
 
 interface State {
   text: string;
@@ -16,17 +19,29 @@ export default class FooView extends React.Component<
   fileRef: React.RefObject<HTMLInputElement>;
   interval: NodeJS.Timeout;
   _audioPlayer: RefObject<AudioPlayer>;
+  currentSongLightData: BinarySearchTree;
+  lastProcessedTimestamp: number;
+  // secs
 
   constructor(props: RouteComponentProps) {
     super(props);
     this.state = {
       text: "Open a file to display content here",
     };
+    let BinarySearchTree = require("binary-search-tree").BinarySearchTree;
+    this.currentSongLightData = new BinarySearchTree({ unique: true });
+    this.currentSongLightData.insert(1, "g");
+    this.currentSongLightData.insert(2, "b");
+    this.currentSongLightData.insert(2.5, "g");
+    this.currentSongLightData.insert(2.8, "w");
+    this.currentSongLightData.insert(3.2, "g");
+    this.currentSongLightData.insert(10, "y");
     this.fileRef = React.createRef<HTMLInputElement>();
-    this.interval = setInterval(() => {
-      console.log(this._audioPlayer.current?.audio.current?.currentTime);
-    }, 50);
     this._audioPlayer = React.createRef<AudioPlayer>();
+    this.interval = setInterval(() => {
+      this.checkForNewKeyframes();
+    }, 50);
+    this.lastProcessedTimestamp = 0;
   }
 
   componentWillUnmount() {
@@ -43,6 +58,29 @@ export default class FooView extends React.Component<
       this.fileRef.current.click();
     }
   };
+
+  checkForNewKeyframes() {
+    const currentTimestampInSong: number = this._audioPlayer.current?.audio
+      .current?.currentTime;
+
+    if (currentTimestampInSong < this.lastProcessedTimestamp) {
+      this.lastProcessedTimestamp = -1;
+    }
+
+    const relevantKeyframes = this.currentSongLightData.betweenBounds({
+      $lte: currentTimestampInSong,
+      $gt: this.lastProcessedTimestamp,
+    });
+    console.log(relevantKeyframes);
+
+    this.lastProcessedTimestamp = currentTimestampInSong;
+    if (relevantKeyframes.length == 0) {
+      return;
+    }
+
+    const signalToSend = relevantKeyframes[relevantKeyframes.length - 1];
+    sendSignalToUsbDevice(signalToSend);
+  }
 
   onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let paths = e.currentTarget.files;
