@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "binary-search-tree": "^0.2.6",
+    "csv-parse": "^4.15.4",
     "fontsource-roboto": "^3.0.3",
     "jzz": "^1.2.6",
     "react": "^16.14.0",
