@@ -4,7 +4,6 @@ import AudioPlayer from "react-h5-audio-player";
 import "react-h5-audio-player/src/styles.scss";
 import fs from "fs";
 import { RefObject } from "react";
-import AVLTree from "binary-search-tree";
 import sendSignalToUsbDevice from "../core/midi";
 import { sign } from "crypto";
 import getDataTreeFromFile from "../core/readLightDataFromFile";
@@ -20,7 +19,7 @@ export default class FooView extends React.Component<
   fileRef: React.RefObject<HTMLInputElement>;
   interval: NodeJS.Timeout;
   _audioPlayer: RefObject<AudioPlayer>;
-  currentSongLightData: AVLTree;
+  currentSongLightData;
   lastProcessedTimestamp: number;
   // secs
 
@@ -61,19 +60,15 @@ export default class FooView extends React.Component<
       this.lastProcessedTimestamp = -1;
     }
 
-    const relevantKeyframes = this.currentSongLightData.betweenBounds({
-      $lte: currentTimestampInSong,
-      $gt: this.lastProcessedTimestamp,
-    });
-    console.log(relevantKeyframes);
+    const newest_keyframe = this.currentSongLightData.le(
+      currentTimestampInSong
+    );
 
-    this.lastProcessedTimestamp = currentTimestampInSong;
-    if (relevantKeyframes.length == 0) {
-      return;
+    if (newest_keyframe && newest_keyframe.key > this.lastProcessedTimestamp) {
+      const signalToSend = newest_keyframe.value;
+      sendSignalToUsbDevice(signalToSend);
     }
-
-    const signalToSend = relevantKeyframes[relevantKeyframes.length - 1];
-    sendSignalToUsbDevice(signalToSend);
+    this.lastProcessedTimestamp = currentTimestampInSong;
   }
 
   onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
