@@ -7,6 +7,7 @@ import { RefObject } from "react";
 import sendSignalToUsbDevice from "../core/midi";
 import { sign } from "crypto";
 import getDataTreeFromFile from "../core/readLightDataFromFile";
+import path from "path";
 
 interface State {
   text: string;
@@ -19,6 +20,7 @@ export default class FooView extends React.Component<
   fileRef: React.RefObject<HTMLInputElement>;
   interval: NodeJS.Timeout;
   _audioPlayer: RefObject<AudioPlayer>;
+  filepathsPerSubfolder: [string, string | undefined, string | undefined][];
   currentSongLightData;
   lastProcessedTimestamp: number;
   // secs
@@ -28,6 +30,42 @@ export default class FooView extends React.Component<
     this.state = {
       text: "Open a file to display content here",
     };
+    const DATA_ROOT_FOLDER_PATH = path.normalize(
+      `C:\\Users\\Jakob Schubert\\Desktop\\music_juggling_root`
+    );
+    const show_folders = fs
+      .readdirSync(DATA_ROOT_FOLDER_PATH)
+      .filter((resourceName) =>
+        fs
+          .lstatSync(path.join(DATA_ROOT_FOLDER_PATH, resourceName))
+          .isDirectory()
+      );
+    console.log(show_folders);
+    this.filepathsPerSubfolder = show_folders.map((resourceName) => [
+      resourceName,
+      fs
+        .readdirSync(path.join(DATA_ROOT_FOLDER_PATH, resourceName))
+        .filter((subResourceName) =>
+          fs
+            .lstatSync(
+              path.join(DATA_ROOT_FOLDER_PATH, resourceName, subResourceName)
+            )
+            .isFile()
+        )
+        .find((value) => /\.mp3$/.test(value)),
+      fs
+        .readdirSync(path.join(DATA_ROOT_FOLDER_PATH, resourceName))
+        .filter((subResourceName) =>
+          fs
+            .lstatSync(
+              path.join(DATA_ROOT_FOLDER_PATH, resourceName, subResourceName)
+            )
+            .isFile()
+        )
+        .find((value) => /\.txt$/.test(value)),
+    ]);
+    console.log(this.filepathsPerSubfolder);
+
     this.currentSongLightData = getDataTreeFromFile();
     this.fileRef = React.createRef<HTMLInputElement>();
     this._audioPlayer = React.createRef<AudioPlayer>();
@@ -53,8 +91,8 @@ export default class FooView extends React.Component<
   };
 
   checkForNewKeyframes() {
-    const currentTimestampInSong: number = this._audioPlayer.current?.audio
-      .current?.currentTime;
+    const currentTimestampInSong: number =
+      this._audioPlayer.current?.audio.current?.currentTime;
 
     if (currentTimestampInSong < this.lastProcessedTimestamp) {
       this.lastProcessedTimestamp = -1;
