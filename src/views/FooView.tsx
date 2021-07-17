@@ -8,6 +8,7 @@ import sendSignalToUsbDevice from "../core/midi";
 import { sign } from "crypto";
 import getDataTreeFromFile from "../core/readLightDataFromFile";
 import path from "path";
+import SelectedListItem from "../components/SelectedListItem";
 
 interface State {
   text: string;
@@ -21,6 +22,7 @@ export default class FooView extends React.Component<
   interval: NodeJS.Timeout;
   _audioPlayer: RefObject<AudioPlayer>;
   filepathsPerSubfolder: [string, string | undefined, string | undefined][];
+  selectedSubfolder: number;
   currentSongLightData;
   lastProcessedTimestamp: number;
   // secs
@@ -28,7 +30,7 @@ export default class FooView extends React.Component<
   constructor(props: RouteComponentProps) {
     super(props);
     this.state = {
-      text: "Open a file to display content here",
+      text: "Select project:",
     };
     const DATA_ROOT_FOLDER_PATH = path.normalize(
       `C:\\Users\\Jakob Schubert\\Desktop\\music_juggling_root`
@@ -40,7 +42,7 @@ export default class FooView extends React.Component<
           .lstatSync(path.join(DATA_ROOT_FOLDER_PATH, resourceName))
           .isDirectory()
       );
-    console.log(show_folders);
+
     this.filepathsPerSubfolder = show_folders.map((resourceName) => [
       resourceName,
       fs
@@ -64,7 +66,10 @@ export default class FooView extends React.Component<
         )
         .find((value) => /\.txt$/.test(value)),
     ]);
+
+    console.log("Filepaths per project folder: ");
     console.log(this.filepathsPerSubfolder);
+    this.selectedSubfolder = 0;
 
     this.currentSongLightData = getDataTreeFromFile();
     this.fileRef = React.createRef<HTMLInputElement>();
@@ -88,6 +93,10 @@ export default class FooView extends React.Component<
     if (this.fileRef.current) {
       this.fileRef.current.click();
     }
+  };
+
+  onProjectSelect = (index: number) => {
+    console.log(index);
   };
 
   checkForNewKeyframes() {
@@ -142,6 +151,13 @@ export default class FooView extends React.Component<
           ref={this._audioPlayer}
         />
         <p>{this.state.text}</p>
+
+        <div>
+          <SelectedListItem
+            theList={this.filepathsPerSubfolder.map((x) => x[0])}
+            onSelect={this.onProjectSelect}
+          />
+        </div>
 
         <button onClick={this.onOpenFileClick}>Open file...</button>
         <input
