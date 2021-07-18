@@ -1,11 +1,7 @@
 import fs from "fs";
 import path, { resolve } from "path";
 
-export default function getDataTreeFromFile() {
-  const filePath = path.normalize(
-    `C:\\Users\\Jakob Schubert\\Desktop\\music_juggling\\Ball1.txt`
-  );
-
+export default function getDataTreeFromFile(filePath: string) {
   let content = fs.readFileSync(filePath, { encoding: "utf-8" });
   const parse = require("csv-parse/lib/sync");
   const records = parse(content, {

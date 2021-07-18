@@ -12,6 +12,8 @@ import SelectedListItem from "../components/SelectedListItem";
 
 interface State {
   text: string;
+  selectedSubfolder: number;
+  currentSongLightData: any;
 }
 
 export default class FooView extends React.Component<
@@ -22,45 +24,49 @@ export default class FooView extends React.Component<
   interval: NodeJS.Timeout;
   _audioPlayer: RefObject<AudioPlayer>;
   filepathsPerSubfolder: [string, string | undefined, string | undefined][];
-  selectedSubfolder: number;
-  currentSongLightData;
   lastProcessedTimestamp: number;
   // secs
+  DATA_ROOT_FOLDER_PATH: string;
 
   constructor(props: RouteComponentProps) {
     super(props);
-    this.state = {
-      text: "Select project:",
-    };
-    const DATA_ROOT_FOLDER_PATH = path.normalize(
+    this.DATA_ROOT_FOLDER_PATH = path.normalize(
       `C:\\Users\\Jakob Schubert\\Desktop\\music_juggling_root`
     );
     const show_folders = fs
-      .readdirSync(DATA_ROOT_FOLDER_PATH)
+      .readdirSync(this.DATA_ROOT_FOLDER_PATH)
       .filter((resourceName) =>
         fs
-          .lstatSync(path.join(DATA_ROOT_FOLDER_PATH, resourceName))
+          .lstatSync(path.join(this.DATA_ROOT_FOLDER_PATH, resourceName))
           .isDirectory()
       );
 
     this.filepathsPerSubfolder = show_folders.map((resourceName) => [
       resourceName,
       fs
-        .readdirSync(path.join(DATA_ROOT_FOLDER_PATH, resourceName))
+        .readdirSync(path.join(this.DATA_ROOT_FOLDER_PATH, resourceName))
         .filter((subResourceName) =>
           fs
             .lstatSync(
-              path.join(DATA_ROOT_FOLDER_PATH, resourceName, subResourceName)
+              path.join(
+                this.DATA_ROOT_FOLDER_PATH,
+                resourceName,
+                subResourceName
+              )
             )
             .isFile()
         )
         .find((value) => /\.mp3$/.test(value)),
       fs
-        .readdirSync(path.join(DATA_ROOT_FOLDER_PATH, resourceName))
+        .readdirSync(path.join(this.DATA_ROOT_FOLDER_PATH, resourceName))
         .filter((subResourceName) =>
           fs
             .lstatSync(
-              path.join(DATA_ROOT_FOLDER_PATH, resourceName, subResourceName)
+              path.join(
+                this.DATA_ROOT_FOLDER_PATH,
+                resourceName,
+                subResourceName
+              )
             )
             .isFile()
         )
@@ -69,9 +75,17 @@ export default class FooView extends React.Component<
 
     console.log("Filepaths per project folder: ");
     console.log(this.filepathsPerSubfolder);
-    this.selectedSubfolder = 0;
-
-    this.currentSongLightData = getDataTreeFromFile();
+    this.state = {
+      text: "Select project:",
+      selectedSubfolder: 0,
+      currentSongLightData: getDataTreeFromFile(
+        path.join(
+          this.DATA_ROOT_FOLDER_PATH,
+          this.filepathsPerSubfolder[0][0],
+          this.filepathsPerSubfolder[0][2] || ""
+        )
+      ),
+    };
     this.fileRef = React.createRef<HTMLInputElement>();
     this._audioPlayer = React.createRef<AudioPlayer>();
     this.interval = setInterval(() => {
@@ -96,18 +110,30 @@ export default class FooView extends React.Component<
   };
 
   onProjectSelect = (index: number) => {
-    console.log(index);
+    this.setState((state, props) => {
+      return {
+        ...state,
+        selectedSubfolder: index,
+        currentSongLightData: getDataTreeFromFile(
+          path.join(
+            this.DATA_ROOT_FOLDER_PATH,
+            this.filepathsPerSubfolder[index][0],
+            this.filepathsPerSubfolder[index][2] || ""
+          )
+        ),
+      };
+    });
   };
 
   checkForNewKeyframes() {
-    const currentTimestampInSong: number =
+    const currentTimestampInSong: number | undefined =
       this._audioPlayer.current?.audio.current?.currentTime;
 
     if (currentTimestampInSong < this.lastProcessedTimestamp) {
       this.lastProcessedTimestamp = -1;
     }
 
-    const newest_keyframe = this.currentSongLightData.le(
+    const newest_keyframe = this.state.currentSongLightData.le(
       currentTimestampInSong
     );
 
@@ -122,7 +148,6 @@ export default class FooView extends React.Component<
     let paths = e.currentTarget.files;
 
     if (!paths || paths.length < 1) {
-      this.setState({ text: "Could not load files..." });
       return;
     }
 
@@ -147,7 +172,14 @@ export default class FooView extends React.Component<
       <div>
         <h3>Audio Player</h3>
         <AudioPlayer
-          src="file:///C:\Users\Jakob Schubert\Desktop\music_juggling\music_lightshow_jahreswechsel_20_21.mp3"
+          src={
+            "file:///" +
+            path.join(
+              this.DATA_ROOT_FOLDER_PATH,
+              this.filepathsPerSubfolder[this.state.selectedSubfolder][0],
+              this.filepathsPerSubfolder[this.state.selectedSubfolder][1] || ""
+            )
+          }
           ref={this._audioPlayer}
         />
         <p>{this.state.text}</p>

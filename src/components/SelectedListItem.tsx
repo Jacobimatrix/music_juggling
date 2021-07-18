@@ -17,9 +17,9 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 type Props = {
-    theList: string[],
-    onSelect: (selectedIndex: number) => void,
-  }
+  theList: string[];
+  onSelect: (selectedIndex: number) => void;
+};
 
 export default function SelectedListItem(props: Props) {
   const classes = useStyles();
@@ -36,20 +36,18 @@ export default function SelectedListItem(props: Props) {
   return (
     <div className={classes.root}>
       <List component="nav" aria-label="project folders">
-        <ListItem
-          button
-          selected={selectedIndex === 0}
-          onClick={(event) => handleListItemClick(event, 0)}
-        >
-          <ListItemText primary="NumberOne" />
-        </ListItem>
-        <ListItem
-          button
-          selected={selectedIndex === 1}
-          onClick={(event) => handleListItemClick(event, 1)}
-        >
-          <ListItemText primary="NumberTwo" />
-        </ListItem>
+        {props.theList.map((value, index) => {
+          return (
+            <ListItem
+              button
+              selected={selectedIndex === index}
+              onClick={(event) => handleListItemClick(event, index)}
+              key={value}
+            >
+              <ListItemText primary={value} />
+            </ListItem>
+          );
+        })}
       </List>
     </div>
   );
