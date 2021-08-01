@@ -1,24 +1,14 @@
-# Electron + React + Fs + Typescript boilerplate project
-![](./.github/project-logo-400.jpg) 
+# Music Juggling Coordinator
 
 
-#### Template project for desktop apps using [Electron](https://electronjs.org/), [React](https://reactjs.org/) and [Typescript](https://www.typescriptlang.org/).
-
-This project enable access to the **file system** through **Node's fs** library.
-
----
-<br>
-<br>
-<br>
-
-# Before everything
+## Before everything
 As always, install packages:
 ```
 npm install
 ```
 
 
-# During development
+## During development
 
 As this project uses [react-hot-loader](https://github.com/gaearon/react-hot-loader) during development, we need to launch [webpack-dev-server](https://github.com/webpack/webpack-dev-server) in a process and Electron in another. 
 <br>
@@ -34,7 +24,7 @@ npm start
 ```
 
 
-# Deploy
+## Deploy
 Just run:
 ```
 npm run pack
